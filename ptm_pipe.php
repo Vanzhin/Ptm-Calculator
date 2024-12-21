@@ -2,6 +2,7 @@
 // на входе внешний диаметр и толщина стенки в мм
 $outerDiameter = (float)$argv[1];
 $wallThickness = (float)$argv[2];
+
 if ($wallThickness > $outerDiameter) {
     echo sprintf("Толщина стенки (%s мм) не может быть больше диаметра (%s мм).\n", $wallThickness, $outerDiameter);
     exit(1);

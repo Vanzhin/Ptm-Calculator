@@ -1,5 +1,5 @@
 <?php
-include 'standards.php';
+include 'standards_profile.php';
 // на входе высота, ширина, толщина стенки в мм и стандарт профиля
 $height = (int)$argv[1];
 $width = (int)$argv[2];
@@ -7,10 +7,10 @@ $wallThickness = (float)$argv[3];
 $standard = $argv[4] ?? null;
 
 $availableStandards = [
-    'ГОСТ_30245-2003', 'DIN_EN_10210_2_2006', 'DIN_EN_10219_2_2006'
+    'ГОСТ_30245-2003', 'DIN_EN_10210-2-2006', 'DIN_EN_10219-2-2006'
 ];
 if (!in_array($standard, $availableStandards)) {
-    exit (sprintf("Стандарт не поддерживается %s, Выберите из (%s).\n", $standard, implode(', ', $availableStandards)));
+    exit (sprintf("Стандарт %s не поддерживается, Выберите из (%s).\n", $standard, implode(', ', $availableStandards)));
 }
 
 function getProfilePerimeter(int $height, int $width, int|float $wallThickness, string $standard): float
@@ -40,7 +40,7 @@ function getSurfaceAreaPerTon(float $sectionalArea, float $surfaceAreaPerMeter):
 }
 
 $perimeter = getProfilePerimeter($height, $width, $wallThickness, $standard);// o
-$sectionalArea = getProfileSectionalArea($height, $width, $wallThickness, $standard);//t
+$sectionalArea = getSectionalArea($height, $width, $wallThickness, $standard);//t
 $surfaceAreaPerMeter = getSurfaceAreaPerMeter($perimeter);
 $surfaceAreaPerTon = getSurfaceAreaPerTon($sectionalArea, $surfaceAreaPerMeter);
 
