@@ -38,7 +38,6 @@ function getPerimeter(
     float $height,
     float $width,
     float $wallThickness,
-    float $shelfThickness,
     float $innerRadius,
     float $outerRadius,
     float $coefficient,
@@ -112,7 +111,7 @@ list(
     $coefficient,//коэффициент u
     ) = getDimensions($standard, $type);
 
-$perimeter = getPerimeter($height, $width, $wallThickness, $shelfThickness, $innerRadius, $outerRadius, $coefficient ?? 0);// o
+$perimeter = getPerimeter($height, $width, $wallThickness, $innerRadius, $outerRadius, $coefficient ?? 0);// o
 $sectionalArea = getSectionalArea($height, $width, $wallThickness, $shelfThickness, $innerRadius, $outerRadius, $coefficient);//t
 $surfaceAreaPerMeter = getSurfaceAreaPerMeter($perimeter);//eu
 $surfaceAreaPerTon = getSurfaceAreaPerTon($sectionalArea, $surfaceAreaPerMeter); //ppt
