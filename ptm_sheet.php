@@ -63,7 +63,7 @@ function getCoefficient(float $width): ?float
     };
 }
 
-function getSheetSurfaceArea(float $mass, float $coefficient): float
+function getSurfaceArea(float $mass, float $coefficient): float
 {
     return $mass / $coefficient * 2;
 }
@@ -72,7 +72,7 @@ $coefficient = getCoefficient($width);
 if (!$coefficient) {
     exit("Значение толщины листа не соответствует ГОСТ 19904-90, 19903-74\n");
 }
-$surfaceArea = getSheetSurfaceArea($mass, $coefficient);
+$surfaceArea = getSurfaceArea($mass, $coefficient);
 
 echo sprintf("Приведенная толщина металла: %.3f мм\n", $width / 2);
 echo sprintf("Площадь поверхности: %.3f м2\n", $surfaceArea);

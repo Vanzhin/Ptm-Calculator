@@ -13,14 +13,14 @@ if (!in_array($standard, $availableStandards)) {
     exit (sprintf("Стандарт %s не поддерживается, Выберите из (%s).\n", $standard, implode(', ', $availableStandards)));
 }
 
-function getProfilePerimeter(int $height, int $width, int|float $wallThickness, string $standard): float
+function getPerimeter(int $height, int $width, int|float $wallThickness, string $standard): float
 {
     $radius = getRadius($standard, $height, $width, $wallThickness);
     // две высоты и две ширины
     return ($height + $radius * (0.5 * pi() - 2)) * 2 + ($width + $radius * (0.5 * pi() - 2)) * 2;
 }
 
-function getProfileSectionalArea(int $height, int $width, int|float $wallThickness, string $standard): float
+function getSectionalArea(int $height, int $width, int|float $wallThickness, string $standard): float
 {
     $radius = getRadius($standard, $height, $width, $wallThickness);
     $area = (2 * $width + 2 * $height - 4 * $wallThickness) * $wallThickness;
@@ -39,7 +39,7 @@ function getSurfaceAreaPerTon(float $sectionalArea, float $surfaceAreaPerMeter):
     return 1000 / ($sectionalArea / 1000 * 7.85) * $surfaceAreaPerMeter;
 }
 
-$perimeter = getProfilePerimeter($height, $width, $wallThickness, $standard);// o
+$perimeter = getPerimeter($height, $width, $wallThickness, $standard);// o
 $sectionalArea = getSectionalArea($height, $width, $wallThickness, $standard);//t
 $surfaceAreaPerMeter = getSurfaceAreaPerMeter($perimeter);
 $surfaceAreaPerTon = getSurfaceAreaPerTon($sectionalArea, $surfaceAreaPerMeter);

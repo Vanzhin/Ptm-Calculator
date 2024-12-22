@@ -9,8 +9,8 @@ if ($shelfThickness > $shelfWidth) {
     echo sprintf("Толщина полки (%s мм) не может быть больше ширины (%s мм).\n", $shelfThickness, $shelfWidth);
     exit(1);
 }
-if ($wallWidth > $wallThickness) {
-    echo sprintf("Толщина стенки (%s мм) не может быть больше ширины (%s мм).\n", $wallThickness, $wallThickness);
+if ($wallThickness > $wallWidth) {
+    echo sprintf("Толщина стенки (%s мм) не может быть больше ширины (%s мм).\n", $wallThickness, $wallWidth);
     exit(1);
 }
 
