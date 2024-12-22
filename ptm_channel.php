@@ -4,10 +4,18 @@ include 'standards_channel.php';
 // на входе стандарт швеллера и марку швеллера
 $standard = $argv[1];
 $type = $argv[2];
+$isTop = $argv[3] === 'true';
+$isBottom = $argv[4] === 'true';
+$isLeft = $argv[5] === 'true';
+$isRight = $argv[6] === 'true';
 
+if (!((int)$isTop + (int)$isBottom + (int)$isLeft + (int)$isRight)) {
+    exit("Швеллер не обогревается.\n");
+}
 $availableStandards = [
     'ГОСТ_8240-97', 'DIN_1026', 'ГОСТ_8278-83'
 ];
+
 
 if (!in_array($standard, $availableStandards)) {
     exit (sprintf("Стандарт не поддерживается %s, Выберите из (%s).\n", $standard, implode(', ', $availableStandards)));
@@ -41,20 +49,29 @@ function getPerimeter(
     float $innerRadius,
     float $outerRadius,
     float $coefficient,
+    bool  $isTop = true, bool $isBottom = true, bool $isLeft = true, bool $isRight = true
 
 ): float
 {
     $perimeter = 0;
-    $perimeter += $width;
-    $perimeter += $width;
-    $perimeter += $height;
-    $perimeter += $height + 2 * ($width - $wallThickness) * (1 / cos(atan($coefficient)) - $coefficient);
-    $correction = 2 * $innerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
-        - 2 * $innerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
-    $perimeter += 2 * $correction;
-    $correction = 2 * $outerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
-        - 2 * $outerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
-    $perimeter += 2 * $correction;
+    if ($isTop) {
+        $perimeter += $width;
+    }
+    if ($isBottom) {
+        $perimeter += $width;
+    }
+    if ($isLeft) {
+        $perimeter += $height;
+    }
+    if ($isRight) {
+        $perimeter += $height + 2 * ($width - $wallThickness) * (1 / cos(atan($coefficient)) - $coefficient);
+        $correction = 2 * $innerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
+            - 2 * $innerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
+        $perimeter += 2 * $correction;
+        $correction = 2 * $outerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
+            - 2 * $outerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
+        $perimeter += 2 * $correction;
+    }
 
     return $perimeter;
 }
@@ -111,7 +128,15 @@ list(
     $coefficient,//коэффициент u
     ) = getDimensions($standard, $type);
 
-$perimeter = getPerimeter($height, $width, $wallThickness, $innerRadius, $outerRadius, $coefficient ?? 0);// o
+$perimeter = getPerimeter(
+    $height,
+    $width,
+    $wallThickness,
+    $innerRadius,
+    $outerRadius,
+    $coefficient ?? 0,
+    $isTop, $isBottom, $isLeft, $isRight
+);// o
 $sectionalArea = getSectionalArea($height, $width, $wallThickness, $shelfThickness, $innerRadius, $outerRadius, $coefficient);//t
 $surfaceAreaPerMeter = getSurfaceAreaPerMeter($perimeter);//eu
 $surfaceAreaPerTon = getSurfaceAreaPerTon($sectionalArea, $surfaceAreaPerMeter); //ppt

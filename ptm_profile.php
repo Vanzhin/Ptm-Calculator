@@ -5,6 +5,14 @@ $height = (int)$argv[1];
 $width = (int)$argv[2];
 $wallThickness = (float)$argv[3];
 $standard = $argv[4] ?? null;
+$isTop = $argv[5] === 'true';
+$isBottom = $argv[6] === 'true';
+$isLeft = $argv[7] === 'true';
+$isRight = $argv[8] === 'true';
+
+if (!((int)$isTop + (int)$isBottom + (int)$isLeft + (int)$isRight)) {
+    exit("Профиль не обогревается.\n");
+}
 
 $availableStandards = [
     'ГОСТ_30245-2003', 'DIN_EN_10210-2-2006', 'DIN_EN_10219-2-2006'
@@ -13,11 +21,30 @@ if (!in_array($standard, $availableStandards)) {
     exit (sprintf("Стандарт %s не поддерживается, Выберите из (%s).\n", $standard, implode(', ', $availableStandards)));
 }
 
-function getPerimeter(int $height, int $width, int|float $wallThickness, string $standard): float
+function getPerimeter(
+    int       $height,
+    int       $width,
+    int|float $wallThickness,
+    string    $standard,
+    bool      $isTop = true, bool $isBottom = true, bool $isLeft = true, bool $isRight = true,
+): float
 {
+    $perimeter = 0;
     $radius = getRadius($standard, $height, $width, $wallThickness);
-    // две высоты и две ширины
-    return ($height + $radius * (0.5 * pi() - 2)) * 2 + ($width + $radius * (0.5 * pi() - 2)) * 2;
+    if ($isTop) {
+        $perimeter += $width + $radius * (0.5 * pi() - 2);
+    }
+    if ($isBottom) {
+        $perimeter += $width + $radius * (0.5 * pi() - 2);
+    }
+    if ($isLeft) {
+        $perimeter += $height + $radius * (0.5 * pi() - 2);
+    }
+    if ($isRight) {
+        $perimeter += $height + $radius * (0.5 * pi() - 2);
+    }
+
+    return $perimeter;
 }
 
 function getSectionalArea(int $height, int $width, int|float $wallThickness, string $standard): float
@@ -39,7 +66,7 @@ function getSurfaceAreaPerTon(float $sectionalArea, float $surfaceAreaPerMeter):
     return 1000 / ($sectionalArea / 1000 * 7.85) * $surfaceAreaPerMeter;
 }
 
-$perimeter = getPerimeter($height, $width, $wallThickness, $standard);// o
+$perimeter = getPerimeter($height, $width, $wallThickness, $standard, $isTop, $isBottom, $isLeft, $isRight);// o
 $sectionalArea = getSectionalArea($height, $width, $wallThickness, $standard);//t
 $surfaceAreaPerMeter = getSurfaceAreaPerMeter($perimeter);
 $surfaceAreaPerTon = getSurfaceAreaPerTon($sectionalArea, $surfaceAreaPerMeter);

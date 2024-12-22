@@ -4,7 +4,14 @@ include 'standards_i_beam.php';
 // на входе стандарт двутавра и марку двутавра
 $standard = $argv[1];
 $type = $argv[2];
+$isTop = $argv[3] === 'true';
+$isBottom = $argv[4] === 'true';
+$isLeft = $argv[5] === 'true';
+$isRight = $argv[6] === 'true';
 
+if (!((int)$isTop + (int)$isBottom + (int)$isLeft + (int)$isRight)) {
+    exit("Двутавр не обогревается.\n");
+}
 $availableStandards = [
     'СТО_АСЧМ_20-93', 'ГОСТ_Р_57837-2017', 'ГОСТ_26020-83', 'ГОСТ_8239-89', 'ГОСТ_19425-74', 'DIN_1025'
 ];
@@ -65,26 +72,34 @@ function getPerimeter(
     float $innerRadius,
     float $outerRadius,
     float $coefficient,
-
+    bool  $isTop = true, bool $isBottom = true, bool $isLeft = true, bool $isRight = true
 ): float
 {
     $perimeter = 0;
-    $perimeter += $width;
-    $perimeter += $width;
-    $perimeter += $height + 1 * ($width - $wallThickness) * (1 / cos(atan($coefficient)) - $coefficient);
-    $correction = 2 * $innerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
-        - 2 * $innerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
-    $perimeter += 2 * $correction;
-    $correction = 2 * $outerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
-        - 2 * $outerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
-    $perimeter += 2 * $correction;
-    $perimeter += $height + 1 * ($width - $wallThickness) * (1 / cos(atan($coefficient)) - $coefficient);
-    $correction = 2 * $innerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
-        - 2 * $innerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
-    $perimeter += 2 * $correction;
-    $correction = 2 * $outerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
-        - 2 * $outerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
-    $perimeter += 2 * $correction;
+    if ($isTop) {
+        $perimeter += $width;
+    }
+    if ($isBottom) {
+        $perimeter += $width;
+    }
+    if ($isLeft) {
+        $perimeter += $height + 1 * ($width - $wallThickness) * (1 / cos(atan($coefficient)) - $coefficient);
+        $correction = 2 * $innerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
+            - 2 * $innerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
+        $perimeter += 2 * $correction;
+        $correction = 2 * $outerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
+            - 2 * $outerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
+        $perimeter += 2 * $correction;
+    }
+    if ($isRight) {
+        $perimeter += $height + 1 * ($width - $wallThickness) * (1 / cos(atan($coefficient)) - $coefficient);
+        $correction = 2 * $innerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
+            - 2 * $innerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
+        $perimeter += 2 * $correction;
+        $correction = 2 * $outerRadius * pi() * 2 * (90 - (90 + qj(atan($coefficient))) / 2) / 360
+            - 2 * $outerRadius * tan(wp(90 - (90 + qj(atan($coefficient))) / 2));
+        $perimeter += 2 * $correction;
+    }
 
     return $perimeter;
 }
@@ -133,7 +148,7 @@ function wp(float $value): float
 // формируем константы двутавра
 extract(getDimensions($standard, $type));
 
-$perimeter = getPerimeter($h, $b, $s, $R, $r ?? 0, $u ?? 0);// o
+$perimeter = getPerimeter($h, $b, $s, $R, $r ?? 0, $u ?? 0, $isTop, $isBottom, $isLeft, $isRight);// o
 $sectionalArea = getSectionalArea($h, $b, $s, $t, $R, $r ?? 0, $u ?? 0);//t
 $surfaceAreaPerMeter = getSurfaceAreaPerMeter($perimeter);//eu
 $surfaceAreaPerTon = getSurfaceAreaPerTon($sectionalArea, $surfaceAreaPerMeter); //ppt

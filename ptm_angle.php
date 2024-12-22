@@ -5,6 +5,8 @@ $height = (int)$argv[1];
 $width = (int)$argv[2];
 $wallThickness = (float)$argv[3];
 $standard = $argv[4] ?? null;
+$isTop = $argv[5] === 'true';
+$isLeft = $argv[6] === 'true';
 
 $availableStandards = [
     'ГОСТ_8509-93', 'ГОСТ_8510-86', 'DIN_EN_10056-1-1998'
@@ -14,7 +16,7 @@ if (!in_array($standard, $availableStandards)) {
     exit (sprintf("Стандарт %s не поддерживается, Выберите из (%s).\n", $standard, implode(', ', $availableStandards)));
 }
 
-function getPerimeter(int $height, int $width, int|float $wallThickness, string $standard): float
+function getPerimeter(int $height, int $width, int|float $wallThickness, string $standard, bool $isTop = true, bool $isLeft = true): float
 {
     $perimeter = ($height + $width);
     $outerRadius = getRadius($standard, $height, $width, $wallThickness);
@@ -23,7 +25,12 @@ function getPerimeter(int $height, int $width, int|float $wallThickness, string 
     $perimeter += $radiusCoefficient;
     $radiusCoefficient = $innerRadius * (0.5 * pi() - 2);
     $perimeter += 2 * $radiusCoefficient;
-    $perimeter += $height + $width;
+    if ($isTop) {
+        $perimeter += $width;
+    }
+    if ($isLeft) {
+        $perimeter += $height;
+    }
 
     return $perimeter;
 }
@@ -75,7 +82,7 @@ function getRadius(string $standard, int $height, int $width, int|float $wallThi
     exit(sprintf("Уголок с параметрами %s не найден.\n", $key));
 }
 
-$perimeter = getPerimeter($height, $width, $wallThickness, $standard);// o
+$perimeter = getPerimeter($height, $width, $wallThickness, $standard, $isTop, $isLeft);// o
 $sectionalArea = getSectionalArea($height, $width, $wallThickness, $standard);//t
 $surfaceAreaPerMeter = getSurfaceAreaPerMeter($perimeter);//eu
 $surfaceAreaPerTon = getSurfaceAreaPerTon($sectionalArea, $surfaceAreaPerMeter); //ppt

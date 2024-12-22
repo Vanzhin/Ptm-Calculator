@@ -4,7 +4,14 @@ $shelfWidth = (float)$argv[1];
 $shelfThickness = (float)$argv[2];
 $wallWidth = (float)$argv[3];
 $wallThickness = (float)$argv[4];
+$isTop = $argv[5] === 'true';
+$isBottom = $argv[6] === 'true';
+$isLeft = $argv[7] === 'true';
+$isRight = $argv[8] === 'true';
 
+if (!((int)$isTop + (int)$isBottom + (int)$isLeft + (int)$isRight)) {
+    exit("Двутавр не обогревается.\n");
+}
 if ($shelfThickness > $shelfWidth) {
     echo sprintf("Толщина полки (%s мм) не может быть больше ширины (%s мм).\n", $shelfThickness, $shelfWidth);
     exit(1);
@@ -14,13 +21,27 @@ if ($wallThickness > $wallWidth) {
     exit(1);
 }
 
-function getPerimeter(float $shelfWidth, float $shelfThickness, float $wallWidth, float $wallThickness): float
+function getPerimeter(
+    float $shelfWidth,
+    float $shelfThickness,
+    float $wallWidth,
+    float $wallThickness,
+    bool  $isTop = true, bool $isBottom = true, bool $isLeft = true, bool $isRight = true
+): float
 {
     $perimeter = 0;
-    $perimeter += $shelfWidth;
-    $perimeter += $shelfWidth;
-    $perimeter += $wallWidth + 2 * $shelfThickness + $shelfWidth - $wallThickness;
-    $perimeter += $wallWidth + 2 * $shelfThickness + $shelfWidth - $wallThickness;
+    if ($isTop) {
+        $perimeter += $shelfWidth;
+    }
+    if ($isBottom) {
+        $perimeter += $shelfWidth;
+    }
+    if ($isLeft) {
+        $perimeter += $wallWidth + 2 * $shelfThickness + $shelfWidth - $wallThickness;
+    }
+    if ($isRight) {
+        $perimeter += $wallWidth + 2 * $shelfThickness + $shelfWidth - $wallThickness;
+    }
 
     return $perimeter;
 }
@@ -40,7 +61,7 @@ function getSurfaceAreaPerTon(float $sectionalArea, float $surfaceAreaPerMeter):
     return 1000 / ($sectionalArea / 1000 * 7.85) * $surfaceAreaPerMeter;
 }
 
-$perimeter = getPerimeter($shelfWidth, $shelfThickness, $wallWidth, $wallThickness);
+$perimeter = getPerimeter($shelfWidth, $shelfThickness, $wallWidth, $wallThickness, $isTop, $isBottom, $isLeft, $isRight);
 $sectionalArea = getSectionalArea($shelfWidth, $shelfThickness, $wallWidth, $wallThickness);
 $surfaceAreaPerMeter = getSurfaceAreaPerMeter($perimeter);
 $surfaceAreaPerTon = getSurfaceAreaPerTon($sectionalArea, $surfaceAreaPerMeter);
