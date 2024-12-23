@@ -17,22 +17,22 @@
 3. Пример выполнения команды для двутавра
 
    ```shell
-   php ptm_i_beam.php СТО_АСЧМ_20-93 20К1
+   php ptm_i_beam.php СТО_АСЧМ_20-93 30Ш2 true true true true
    ```
 4. Пример выполнения команды для уголка
 
    ```shell
-   php ptm_angle.php 250 250 35 ГОСТ_8509-93
+    php ptm_angle.php 250 250 35 ГОСТ_8509-93 true true
    ```
 5. Пример выполнения команды для швеллера
 
    ```shell
-   php ptm_channel.php ГОСТ_8240-97 5У
+    php ptm_channel.php ГОСТ_8240-97 5У true tru true true
    ```
 6. Пример выполнения команды для двутавра по размерам
 
    ```shell
-   php ptm_i_beam_custom.php 20 2 30 3
+   php ptm_i_beam_custom.php 20 2 30 3 true true true true
    ```
 7. Пример выполнения команды для трубы
 
@@ -42,7 +42,7 @@
 8. Пример выполнения команды для профиля
 
    ```shell
-   php ptm_profile.php 40 40 2.5 ГОСТ_30245-2003
+   php ptm_profile.php 40 40 2.5 ГОСТ_30245-2003 true true true true
    ```
 
 9. Пример выполнения команды для листа
