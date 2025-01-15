@@ -13,7 +13,7 @@ if (!((int)$isTop + (int)$isBottom + (int)$isLeft + (int)$isRight)) {
     exit("Швеллер не обогревается.\n");
 }
 $availableStandards = [
-    'ГОСТ_8240-97', 'DIN_1026', 'ГОСТ_8278-83'
+    'ГОСТ_8240-97', 'DIN_1026'
 ];
 
 
@@ -27,7 +27,6 @@ function getDimensions(string $standard, string $type): array
     global $standardDin1026;
     switch ($standard) {
         case 'ГОСТ_8240-97':
-        case 'ГОСТ_8278-83':
             if (isset($standardGost8240[$type])) {
                 return array_values(array_map(fn($item) => (float)$item, $standardGost8240[$type]));
             }
