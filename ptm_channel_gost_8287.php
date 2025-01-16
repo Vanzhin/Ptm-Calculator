@@ -87,7 +87,7 @@ echo sprintf("Площадь поверхности / 1т: %.3f м2\n", $surface
 function getRadius(string $standard, int $height, int $width, int|float $wallThickness): int
 {
     global $standardGost8278;
-    $key = implode(' x ', [$height, $width, str_replace('.', ',', (string)($wallThickness))]);
+    $key = implode(' x ', [$height, $width, $wallThickness]);
     switch ($standard) {
         case 'ГОСТ_8278-83':
             if (isset($standardGost8278[$key])) {
