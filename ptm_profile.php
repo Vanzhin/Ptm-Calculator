@@ -77,19 +77,41 @@ echo sprintf("Площадь поверхности / 1м: %.3f м2\n", $surface
 echo sprintf("Площадь поверхности / 1т: %.3f м2\n", $surfaceAreaPerTon);
 
 
-function getRadius(string $standard, int $height, int $width, int|float $wallThickness): int
+function getRadius(string $standard, int $height, int $width, int|float $wallThickness): float
 {
     global $standardGost302245;
+    global $standardDin_EN_10219_2_2006;
+    global $standardDin_EN_10210_2_2006;
+
     $key = implode(' x ', [$height, $width, str_replace('.', ',', (string)($wallThickness))]);
     switch ($standard) {
         case 'ГОСТ_30245-2003':
             if (isset($standardGost302245[$key])) {
-                return (int)$standardGost302245[$key]['R'] ?? 0;
+                return (float)$standardGost302245[$key]['R'] ?? 0;
             }
             exit(sprintf("Профиль с параметрами %s не найден.\n", $key));
-//        case 'DIN_EN_10210_2_2006':
-//        case 'DIN_EN_10219_2_2006':
-//            return 0;
+        case 'DIN_EN_10210-2-2006':
+            //External corner radius (ro) for calculation is:
+            //(ro = 1,5T)
+            //(mm)
+            if (isset($standardDin_EN_10210_2_2006[$key])) {
+                return (float)$wallThickness * 1.5;
+            }
+            exit(sprintf("Профиль с параметрами %s не найден.\n", $key));
+
+        case 'DIN_EN_10219-2-2006':
+            //Внешний диаметр закругления ro в расчетах составляет:
+            //- для толщины до 6 мм 2,0 Т (мм)
+            //- для толщины от 6 до 10 мм 2,5 Т (мм)
+            //- для толщины более 10 мм 3,0 Т (мм)
+            if (isset($standardDin_EN_10219_2_2006[$key])) {
+                return match (true) {
+                    $wallThickness <= 6 => $wallThickness * 2,
+                    $wallThickness > 6 && $wallThickness <= 10 => $wallThickness * 2.5,
+                    $wallThickness > 10 => $wallThickness * 3,
+                };
+            }
+            exit(sprintf("Профиль с параметрами %s не найден.\n", $key));
         default :
             return 0;
     }
