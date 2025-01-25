@@ -30,18 +30,58 @@ function getPerimeter(
 ): float
 {
     $perimeter = 0;
+
+    // счетчик сторон для добавления периметра при расчете
+    $sideCount = 0;
+    $adjacent = false;
     $radius = getRadius($standard, $height, $width, $wallThickness);
+
+    //коэффициент для основного расчета
+    $radCoef = 0.5;
+    $addRadCoef = 0.5;
+    if ($radius < 2 * $wallThickness) {
+        $radCoef = 2.1458 / 4;
+        $addRadCoef = 0.36445;
+    }
+    if ($radius > 2 * $wallThickness) {
+        $radCoef = 2.00944 / 4;
+        $addRadCoef = 0.491374;
+    }
+
     if ($isTop) {
-        $perimeter += $width + $radius * (0.5 * pi() - 2);
+        $perimeter += $width + $radius * ($radCoef * pi() - 2);
+        $sideCount++;
     }
     if ($isBottom) {
-        $perimeter += $width + $radius * (0.5 * pi() - 2);
+        $perimeter += $width + $radius * ($radCoef * pi() - 2);
+        $sideCount++;
     }
     if ($isLeft) {
-        $perimeter += $height + $radius * (0.5 * pi() - 2);
+        $perimeter += $height + $radius * ($radCoef * pi() - 2);
+        $sideCount++;
     }
     if ($isRight) {
-        $perimeter += $height + $radius * (0.5 * pi() - 2);
+        $perimeter += $height + $radius * ($radCoef * pi() - 2);
+        $sideCount++;
+    }
+    if (!$isLeft && (!$isBottom || !$isTop)) {
+        $adjacent = true;
+    }
+    if (!$isRight && (!$isBottom || !$isTop)) {
+        $adjacent = true;
+    }
+    if (!$isTop && (!$isRight || !$isLeft)) {
+        $adjacent = true;
+    }
+    if (!$isBottom && (!$isRight || !$isLeft)) {
+        $adjacent = true;
+    }
+    if ($sideCount) {
+        $perimeter += match (true) {
+            $sideCount === 4 => 0,
+            $sideCount === 3, $sideCount === 1, $sideCount === 2 && $adjacent === true => ($radius * $addRadCoef * pi()),
+            $sideCount === 2 && $adjacent === false => 2 * ($radius * $addRadCoef * pi()),
+        };
     }
 
     return $perimeter;
@@ -50,10 +90,17 @@ function getPerimeter(
 function getSectionalArea(int $height, int $width, int|float $wallThickness, string $standard): float
 {
     $radius = getRadius($standard, $height, $width, $wallThickness);
-    $area = (2 * $width + 2 * $height - 4 * $wallThickness) * $wallThickness;
-    $radiusArea = 0.25 * pi() * ($radius * $radius - ($radius - $wallThickness) * ($radius - $wallThickness)) - (2 * $radius - $wallThickness) * $wallThickness;
+    if (in_array($standard, ['DIN_EN_10210-2-2006', 'DIN_EN_10219-2-2006'])) {
+        $innerRadius = getInnerRadius($standard, $wallThickness);
+        return (2 * $wallThickness * ($height + $width - 2 * $wallThickness) - (4 - pi()) * (pow($radius, 2) - pow($innerRadius, 2)));
+    }
+    if ('ГОСТ_30245-2003' === $standard) {
+        $area = (2 * $width + 2 * $height - 4 * $wallThickness) * $wallThickness;
+        $radiusArea = 0.25 * pi() * ($radius * $radius - ($radius - $wallThickness) * ($radius - $wallThickness)) - (2 * $radius - $wallThickness) * $wallThickness;
+        return $area + 4 * $radiusArea;
+    }
 
-    return $area + 4 * $radiusArea;
+    return 0;
 }
 
 function getSurfaceAreaPerMeter(float $perimeter): float
@@ -72,6 +119,7 @@ $surfaceAreaPerMeter = getSurfaceAreaPerMeter($perimeter);
 $surfaceAreaPerTon = getSurfaceAreaPerTon($sectionalArea, $surfaceAreaPerMeter);
 
 echo sprintf("Приведенная толщина металла: %.3f мм\n", $sectionalArea / $perimeter);
+echo sprintf("Площадь сечения: %.3f мм\n", $sectionalArea);
 echo sprintf("Обогреваемый периметр: %.3f мм\n", $perimeter);
 echo sprintf("Площадь поверхности / 1м: %.3f м2\n", $surfaceAreaPerMeter);
 echo sprintf("Площадь поверхности / 1т: %.3f м2\n", $surfaceAreaPerTon);
@@ -115,6 +163,27 @@ function getRadius(string $standard, int $height, int $width, int|float $wallThi
         default :
             return 0;
     }
+}
+
+function getInnerRadius(string $standard, int|float $wallThickness): float
+{
+    if ('DIN_EN_10219-2-2006' === $standard) {
+        //Внутренний диаметр закругления ri в расчетах
+        //составляет:
+        //- для толщины до 6 мм 1,0 Т (мм)
+        //- для толщины от 6 до 10 мм 1,5 Т (мм)
+        //- для толщины более 10 мм 2,0 Т (мм)
+        return match (true) {
+            $wallThickness <= 6 => $wallThickness,
+            $wallThickness > 6 && $wallThickness <= 10 => $wallThickness * 1.5,
+            $wallThickness > 10 => $wallThickness * 2,
+        };
+    }
+    if ('DIN_EN_10210-2-2006' === $standard) {
+        return $wallThickness;
+    }
+
+    return 0;
 }
 
 exit();
